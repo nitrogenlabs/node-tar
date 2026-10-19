@@ -154,6 +154,19 @@ const parseKV = (str: string) =>
     .split('\n')
     .reduce(parseKVLine, Object.create(null))
 
+const parseTime = (value: string) => {
+  const match = /^([+-]?)(\d*)(?:\.(\d+))?$/.exec(value.trim())
+  if (!match || !(match[2] || match[3])) {
+    return new Date(Number(value) * 1000)
+  }
+  // Convert decimal seconds in integer parts, avoiding floating-point loss
+  // of milliseconds. Date precision truncates any sub-milliseconds.
+  const milliseconds =
+    Number(match[2]) * 1000 +
+    Number((match[3] || '').slice(0, 3).padEnd(3, '0'))
+  return new Date(match[1] === '-' ? -milliseconds : milliseconds)
+}
+
 const parseKVLine = (
   set: Record<string, string | number | Date>,
   line: string,
@@ -190,7 +203,7 @@ const parseKVLine = (
     case 'ctime':
     case 'atime':
     case 'mtime':
-      set[k] = new Date(Number(v) * 1000)
+      set[k] = parseTime(v)
       break
     case 'size':
       const s = +v

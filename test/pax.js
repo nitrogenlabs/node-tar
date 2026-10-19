@@ -1,6 +1,75 @@
 import t from 'tap'
 import { Pax } from '../dist/esm/pax.js'
 
+t.test('Date milliseconds serialize and parse exactly', t => {
+  for (const field of ['atime', 'ctime', 'mtime']) {
+    for (const [ms, seconds] of [
+      [1001, '1.001'],
+      [-1001, '-1.001'],
+      [1, '0.001'],
+      [-1, '-0.001'],
+      [1700000000123, '1700000000.123'],
+      [1700000000000, '1700000000'],
+      [0, '0'],
+      [8639999999999999, '8639999999999.999'],
+      [-8639999999999999, '-8639999999999.999'],
+      [8639999999999998, '8639999999999.998'],
+      [-8639999999999998, '-8639999999999.998'],
+      [8640000000000000, '8640000000000'],
+      [-8640000000000000, '-8640000000000'],
+    ]) {
+      const body = new Pax({ [field]: new Date(ms) }).encodeBody()
+      t.ok(
+        body.endsWith(` ${field}=${seconds}\n`),
+        `${field}=${ms} decimal seconds`,
+      )
+      t.equal(
+        Pax.parse(body)[field].getTime(),
+        ms,
+        `${field}=${ms} round trip`,
+      )
+    }
+  }
+  t.end()
+})
+
+t.test('decimal seconds truncate sub-milliseconds toward zero', t => {
+  for (const [seconds, ms] of [
+    ['1.001', 1001],
+    ['-1.001', -1001],
+    ['1.0019', 1001],
+    ['-1.0019', -1001],
+    ['0.0009', 0],
+    ['-0.0009', 0],
+    ['.001', 1],
+    ['-.001', -1],
+    ['+001.001', 1001],
+    [' 1.001 ', 1001],
+    ['8640000000000.0009', 8640000000000000],
+    ['-8640000000000.0009', -8640000000000000],
+    ['8640000000000.001', NaN],
+    ['-8640000000000.001', NaN],
+    ['1e3', 1000000],
+    ['1.001e0', 1000],
+    ['0x10', 16000],
+    ['', 0],
+    ['+', NaN],
+    ['NaN', NaN],
+    ['Infinity', NaN],
+    ['wat', NaN],
+  ]) {
+    const line = ` mtime=${seconds}\n`
+    const body = `${line.length + 2}${line}`
+    const actual = Pax.parse(body).mtime.getTime()
+    if (Number.isNaN(ms)) t.ok(Number.isNaN(actual), seconds)
+    else t.equal(actual, ms, seconds)
+  }
+  const invalid = new Pax({ mtime: new Date(NaN) }).encodeBody()
+  t.ok(invalid.endsWith(' mtime=NaN\n'))
+  t.ok(Number.isNaN(Pax.parse(invalid).mtime.getTime()))
+  t.end()
+})
+
 t.test('create a pax', t => {
   const p = new Pax({
     atime: new Date('1979-07-01T19:10:00.000Z'),

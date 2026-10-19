@@ -38,6 +38,18 @@ const files = path.resolve(fixtures, 'files')
 process.env.USER = 'isaacs'
 const isWindows = process.platform === 'win32'
 
+// These raw-header/layout fixtures use whole seconds. Fractional filesystem
+// timestamps and PAX round trips are exercised without stat mocks in timestamps.js.
+t.teardown(
+  mutateFS.statMutate((_er, st) => {
+    if (st) {
+      st.atime = new Date('2016-04-01T22:00:00.000Z')
+      st.ctime = new Date('2016-04-01T22:00:00.000Z')
+      st.mtime = new Date('2016-04-01T22:00:00.000Z')
+    }
+  }),
+)
+
 t.test('set up', t => {
   const one = fs.statSync(files + '/hardlink-1')
   const two = fs.statSync(files + '/hardlink-2')

@@ -1,6 +1,41 @@
 import t from 'tap'
 import { Header } from '../dist/esm/header.js'
 import { name } from '../dist/esm/types.js'
+import { Pax } from '../dist/esm/pax.js'
+
+t.test(
+  'fractional dates request pax with integral fallback headers',
+  t => {
+    for (const field of ['mtime', 'atime', 'ctime']) {
+      for (const [ms, fallback, needPax] of [
+        [1700000000125, 1700000000000, true],
+        [125, 0, true],
+        [-125, -1000, true],
+        [-1125, -2000, true],
+        [1700000000000, 1700000000000, false],
+        [0, 0, false],
+        [-1000, -1000, true],
+        [8589934592000, 8589934592000, true],
+        [8589934592125, 8589934592000, true],
+      ]) {
+        t.test(`${field}=${ms}`, t => {
+          const date = new Date(ms)
+          const h = new Header({ [field]: date, path: 'short' })
+          t.equal(h.encode(), needPax)
+          t.equal(h.needPax, needPax)
+          t.equal(h[field], date, 'retain original Date for pax')
+          const decoded = new Header(h.block)
+          t.ok(decoded.cksumValid)
+          t.equal(decoded[field].getTime(), fallback)
+          const pax = Pax.parse(new Pax({ [field]: date }).encodeBody())
+          t.equal(new Header(h.block, 0, pax)[field].getTime(), ms)
+          t.end()
+        })
+      }
+    }
+    t.end()
+  },
+)
 
 t.test('ustar format', t => {
   const buf = Buffer.from(

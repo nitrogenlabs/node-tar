@@ -361,5 +361,7 @@ t.test('transform a filename', async t => {
     },
     ['README.md'],
   ).concat()
-  t.equal(data.subarray(0, 'bloorg.md'.length).toString(), 'bloorg.md')
+  const paths: string[] = []
+  list({ onReadEntry: entry => paths.push(entry.path) }).end(data)
+  t.same(paths, ['bloorg.md'])
 })

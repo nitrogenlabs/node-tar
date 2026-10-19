@@ -414,10 +414,15 @@ const padOctal = (str: string, size: number) =>
     str
   : new Array(size - str.length - 1).join('0') + str + ' ') + '\0'
 
-const encDate = (buf: Buffer, off: number, size: 8 | 12, date?: Date) =>
-  date === undefined ? false : (
-    encNumber(buf, off, size, date.getTime() / 1000)
+const encDate = (buf: Buffer, off: number, size: 8 | 12, date?: Date) => {
+  if (date === undefined) return false
+  const seconds = date.getTime() / 1000
+  // The basic header stores whole seconds; pax preserves the original date.
+  return (
+    encNumber(buf, off, size, Math.floor(seconds)) ||
+    !Number.isInteger(seconds)
   )
+}
 
 // enough to fill the longest string we've got
 const NULLS = new Array(156).join('\0')

@@ -434,6 +434,7 @@ t.test('do not add older file', t => {
 })
 
 t.test('do add newer file', t => {
+  const newDate = new Date('2030-01-01T00:00:00.125Z')
   const setup = t => {
     const dir = t.testdir({
       'body-byte-counts.tar': fixtureDef['body-byte-counts.tar'],
@@ -442,13 +443,12 @@ t.test('do add newer file', t => {
     })
 
     const f = resolve(dir, '1024-bytes.txt')
-    const newDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
     fs.utimesSync(f, newDate, newDate)
     return dir
   }
 
-  // a chunk for the header, then 2 for the body
-  const expect = fixtureDef['body-byte-counts.tar'].length + 512 + 1024
+  // PAX header/body, the file header, then 2 chunks for the file body.
+  const expect = fixtureDef['body-byte-counts.tar'].length + 1536 + 1024
   const check = (file, t) => {
     t.equal(fs.statSync(file).size, expect)
     t.end()
