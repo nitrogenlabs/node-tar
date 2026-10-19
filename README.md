@@ -1,5 +1,27 @@
 # node-tar
 
+## NLabs fork
+
+`@nlabs/tar` is an NLabs fork of
+[isaacs/node-tar](https://github.com/isaacs/node-tar), based on upstream
+v7.5.22. Original authorship and the Blue Oak Model License are retained.
+The fork repository is
+[nitrogenlabs/node-tar](https://github.com/nitrogenlabs/node-tar).
+
+This release preserves fractional JavaScript Date timestamps in PAX
+headers, including exact millisecond decoding for decimal PAX dates.
+The public APIs and export aliases remain compatible with upstream.
+Install it under the existing `tar` import name with an exact npm alias:
+
+```sh
+npm install tar@npm:@nlabs/tar@7.5.22-nlabs.1
+```
+
+Precision is limited to JavaScript Date milliseconds. Longer decimal
+fractions are truncated toward zero. `noPax` explicitly loses fractional
+seconds. Upstream extraction does not restore symbolic-link timestamps;
+consumers needing those timestamps must restore them independently.
+
 Fast and full-featured Tar for Node.js
 
 The API is designed to mimic the behavior of `tar(1)` on unix systems.

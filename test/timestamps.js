@@ -1,9 +1,9 @@
 import t from 'tap'
 import fs from 'node:fs'
 import { createRequire } from 'node:module'
-import * as esm from 'tar'
+import * as esm from '@nlabs/tar'
 
-const cjs = createRequire(import.meta.url)('tar')
+const cjs = createRequire(import.meta.url)('@nlabs/tar')
 
 for (const [format, tar] of [
   ['esm', esm],

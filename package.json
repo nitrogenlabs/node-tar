@@ -1,11 +1,11 @@
 {
   "author": "Isaac Z. Schlueter",
-  "name": "tar",
-  "description": "tar for node",
-  "version": "7.5.22",
+  "name": "@nlabs/tar",
+  "description": "NLabs fork of tar for node with exact millisecond PAX timestamps",
+  "version": "7.5.22-nlabs.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/isaacs/node-tar.git"
+    "url": "https://github.com/nitrogenlabs/node-tar.git"
   },
   "scripts": {
     "genparse": "node scripts/generate-parse-fixtures.js",
@@ -47,6 +47,9 @@
     "typedoc": "^0.28.19"
   },
   "license": "BlueOak-1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },
