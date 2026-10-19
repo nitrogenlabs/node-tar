@@ -14,7 +14,7 @@ The public APIs and export aliases remain compatible with upstream.
 Install it under the existing `tar` import name with an exact npm alias:
 
 ```sh
-npm install tar@npm:@nlabs/tar@7.5.22-nlabs.1
+npm install tar@npm:@nlabs/tar@7.5.22
 ```
 
 Precision is limited to JavaScript Date milliseconds. Longer decimal

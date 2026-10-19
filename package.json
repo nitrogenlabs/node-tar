@@ -2,7 +2,7 @@
   "author": "Isaac Z. Schlueter",
   "name": "@nlabs/tar",
   "description": "NLabs fork of tar for node with exact millisecond PAX timestamps",
-  "version": "7.5.22-nlabs.1",
+  "version": "7.5.22",
   "repository": {
     "type": "git",
     "url": "https://github.com/nitrogenlabs/node-tar.git"
